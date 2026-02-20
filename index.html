@@ -1,0 +1,3413 @@
+<!doctype html>
+<html lang="th">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ExamForge — ระบบสร้างข้อสอบ</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            :root {
+                --cream: #f5ede0;
+                --cream2: #ede0cc;
+                --cream3: #e0cdb5;
+                --warm: #d4a96a;
+                --warm2: #c49050;
+                --warm3: #a87840;
+                --brown: #6b4c2a;
+                --brown2: #4e3318;
+                --brown3: #2e1e0a;
+                --sand: #e8d5b7;
+                --sand2: #d4bfa0;
+                --amber: #c8860a;
+                --amber2: #e6a020;
+                --rust: #b85c2a;
+                --sage: #7a9068;
+                --border: #c4a882;
+                --border2: #a8906a;
+                --text: #2e1e0a;
+                --text2: #5a3e22;
+                --text3: #8a6c4a;
+                --red: #c0392b;
+                --green: #27ae60;
+                --mono: "IBM Plex Mono", monospace;
+                --sans: "IBM Plex Sans Thai", sans-serif;
+                --serif: "Playfair Display", serif;
+            }
+            html {
+                font-size: 14px;
+                scroll-behavior: smooth;
+            }
+            body {
+                font-family: var(--sans);
+                background: var(--cream);
+                color: var(--text);
+                min-height: 100vh;
+            }
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 0;
+                background-image:
+                    linear-gradient(
+                        rgba(180, 140, 90, 0.06) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(180, 140, 90, 0.06) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        rgba(180, 140, 90, 0.03) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(180, 140, 90, 0.03) 1px,
+                        transparent 1px
+                    );
+                background-size:
+                    100px 100px,
+                    100px 100px,
+                    20px 20px,
+                    20px 20px;
+            }
+
+            /* ═══ LOGIN SCREEN ═══ */
+            #login-screen {
+                position: fixed;
+                inset: 0;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(
+                    135deg,
+                    var(--brown3) 0%,
+                    #1a0f05 50%,
+                    #2a1508 100%
+                );
+            }
+            #login-screen::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background-image:
+                    linear-gradient(
+                        rgba(212, 169, 106, 0.08) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(212, 169, 106, 0.08) 1px,
+                        transparent 1px
+                    );
+                background-size: 40px 40px;
+            }
+            .login-box {
+                position: relative;
+                z-index: 1;
+                background: rgba(245, 237, 224, 0.97);
+                border: 2px solid var(--warm);
+                border-radius: 16px;
+                padding: 44px 40px;
+                width: 380px;
+                box-shadow:
+                    0 20px 60px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(212, 169, 106, 0.2);
+            }
+            .login-logo {
+                text-align: center;
+                margin-bottom: 28px;
+            }
+            .login-logo-title {
+                font-family: var(--serif);
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--brown2);
+                letter-spacing: -0.5px;
+                display: block;
+            }
+            .login-logo-sub {
+                font-family: var(--mono);
+                font-size: 0.65rem;
+                color: var(--text3);
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                display: block;
+                margin-top: 4px;
+            }
+            .login-divider {
+                width: 40px;
+                height: 2px;
+                background: var(--warm);
+                margin: 12px auto;
+            }
+            .login-field {
+                margin-bottom: 16px;
+            }
+            .login-label {
+                display: block;
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--text2);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 6px;
+            }
+            .login-input {
+                width: 100%;
+                padding: 11px 14px;
+                background: white;
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                font-family: var(--sans);
+                font-size: 0.88rem;
+                color: var(--text);
+                outline: none;
+                transition:
+                    border-color 0.2s,
+                    box-shadow 0.2s;
+            }
+            .login-input:focus {
+                border-color: var(--warm2);
+                box-shadow: 0 0 0 3px rgba(212, 169, 106, 0.15);
+            }
+            .login-btn {
+                width: 100%;
+                padding: 13px;
+                background: var(--brown2);
+                border: 2px solid var(--warm);
+                border-radius: 10px;
+                cursor: pointer;
+                font-family: var(--serif);
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: var(--cream);
+                letter-spacing: 0.3px;
+                transition: all 0.2s;
+                margin-top: 8px;
+                position: relative;
+                overflow: hidden;
+            }
+            .login-btn:hover {
+                background: var(--brown);
+            }
+            .login-btn:active {
+                transform: scale(0.99);
+            }
+            .login-error {
+                background: rgba(192, 57, 43, 0.1);
+                border: 1px solid rgba(192, 57, 43, 0.3);
+                color: var(--red);
+                border-radius: 8px;
+                padding: 10px 14px;
+                font-size: 0.8rem;
+                margin-bottom: 14px;
+                display: none;
+            }
+            .login-error.show {
+                display: block;
+            }
+            .login-footer {
+                text-align: center;
+                font-size: 0.72rem;
+                color: var(--text3);
+                margin-top: 20px;
+                font-family: var(--mono);
+            }
+
+            /* ═══ APP SHELL ═══ */
+            #app {
+                display: none;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+            #app.visible {
+                display: flex;
+            }
+
+            /* TOPBAR */
+            .topbar {
+                position: relative;
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 28px;
+                height: 54px;
+                background: var(--brown3);
+                border-bottom: 3px solid var(--warm);
+                flex-shrink: 0;
+            }
+            .brand {
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+            }
+            .brand-name {
+                font-family: var(--serif);
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: var(--cream);
+            }
+            .brand-badge {
+                font-family: var(--mono);
+                font-size: 0.6rem;
+                color: var(--amber2);
+                letter-spacing: 2px;
+                background: rgba(200, 134, 10, 0.15);
+                padding: 2px 6px;
+                border-radius: 3px;
+            }
+            .topbar-nav {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .nav-btn {
+                font-family: var(--sans);
+                font-size: 0.78rem;
+                font-weight: 500;
+                color: var(--sand);
+                padding: 6px 14px;
+                border-radius: 6px;
+                cursor: pointer;
+                border: none;
+                background: transparent;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .nav-btn:hover {
+                background: rgba(212, 169, 106, 0.2);
+                color: var(--cream);
+            }
+            .nav-btn.active {
+                background: rgba(212, 169, 106, 0.25);
+                color: var(--amber2);
+            }
+            .nav-btn.hidden {
+                display: none;
+            }
+            .topbar-right {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            /* USER BADGE */
+            .user-badge {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(212, 169, 106, 0.12);
+                border: 1px solid rgba(212, 169, 106, 0.3);
+                border-radius: 20px;
+                padding: 5px 12px;
+            }
+            .user-avatar {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.65rem;
+                font-weight: 700;
+                font-family: var(--mono);
+            }
+            .avatar-admin {
+                background: var(--amber2);
+                color: var(--brown3);
+            }
+            .avatar-teacher {
+                background: var(--sage);
+                color: white;
+            }
+            .user-name {
+                font-family: var(--mono);
+                font-size: 0.68rem;
+                color: var(--sand);
+            }
+            .user-role {
+                font-family: var(--mono);
+                font-size: 0.58rem;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                padding: 2px 6px;
+                border-radius: 3px;
+            }
+            .role-admin {
+                background: rgba(230, 160, 32, 0.2);
+                color: var(--amber2);
+            }
+            .role-teacher {
+                background: rgba(122, 144, 104, 0.2);
+                color: var(--sage);
+            }
+            .logout-btn {
+                font-family: var(--mono);
+                font-size: 0.65rem;
+                color: var(--text3);
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px 6px;
+                border-radius: 4px;
+                transition: all 0.2s;
+            }
+            .logout-btn:hover {
+                color: var(--red);
+                background: rgba(192, 57, 43, 0.1);
+            }
+
+            /* SECTION TABS */
+            .section-tabs {
+                position: relative;
+                z-index: 50;
+                display: flex;
+                background: var(--brown2);
+                border-bottom: 2px solid var(--border2);
+                padding: 0 28px;
+            }
+            .tab {
+                font-family: var(--sans);
+                font-size: 0.78rem;
+                font-weight: 500;
+                color: var(--sand2);
+                padding: 10px 20px;
+                cursor: pointer;
+                border: none;
+                background: transparent;
+                border-bottom: 3px solid transparent;
+                margin-bottom: -2px;
+                transition: all 0.2s;
+            }
+            .tab:hover {
+                color: var(--cream2);
+            }
+            .tab.active {
+                color: var(--amber2);
+                border-bottom-color: var(--amber2);
+                background: rgba(200, 134, 10, 0.08);
+            }
+
+            /* MAIN */
+            .main {
+                position: relative;
+                z-index: 10;
+                display: none;
+                padding: 28px;
+                gap: 24px;
+                max-width: 1400px;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .main.active {
+                display: flex;
+            }
+
+            /* PANELS */
+            .panel {
+                background: var(--cream2);
+                border: 1.5px solid var(--border);
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 2px 12px rgba(46, 30, 10, 0.08);
+            }
+            .panel-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 14px 18px;
+                background: var(--brown2);
+                border-bottom: 1.5px solid var(--border2);
+            }
+            .panel-title {
+                font-family: var(--mono);
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--sand);
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            .panel-body {
+                padding: 18px;
+            }
+
+            /* FORMS */
+            .form-group {
+                margin-bottom: 16px;
+            }
+            .form-label {
+                display: block;
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--text2);
+                letter-spacing: 0.5px;
+                margin-bottom: 6px;
+                text-transform: uppercase;
+            }
+            .form-input,
+            .form-select,
+            .form-textarea {
+                width: 100%;
+                padding: 9px 12px;
+                background: var(--cream);
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                color: var(--text);
+                font-family: var(--sans);
+                font-size: 0.85rem;
+                transition: border-color 0.2s;
+                outline: none;
+            }
+            .form-input:focus,
+            .form-select:focus,
+            .form-textarea:focus {
+                border-color: var(--warm2);
+                box-shadow: 0 0 0 3px rgba(212, 169, 106, 0.15);
+            }
+            .form-textarea {
+                min-height: 80px;
+                resize: vertical;
+            }
+            .form-select {
+                appearance: none;
+                cursor: pointer;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23a87840'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                padding-right: 32px;
+            }
+            .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .form-row-3 {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 12px;
+            }
+
+            /* BUTTONS */
+            .btn {
+                padding: 9px 16px;
+                border-radius: 8px;
+                border: 1.5px solid;
+                cursor: pointer;
+                font-family: var(--mono);
+                font-size: 0.72rem;
+                font-weight: 600;
+                transition: all 0.2s;
+                letter-spacing: 0.5px;
+            }
+            .btn-primary {
+                background: var(--warm2);
+                border-color: var(--warm2);
+                color: var(--brown3);
+            }
+            .btn-primary:hover {
+                background: var(--warm3);
+                border-color: var(--warm3);
+            }
+            .btn-secondary {
+                background: transparent;
+                border-color: var(--border);
+                color: var(--text2);
+            }
+            .btn-secondary:hover {
+                border-color: var(--warm2);
+                color: var(--warm2);
+            }
+            .btn-danger {
+                background: rgba(192, 57, 43, 0.1);
+                border-color: rgba(192, 57, 43, 0.4);
+                color: var(--red);
+            }
+            .btn-danger:hover {
+                background: rgba(192, 57, 43, 0.2);
+            }
+            .btn-success {
+                background: rgba(39, 174, 96, 0.1);
+                border-color: rgba(39, 174, 96, 0.4);
+                color: var(--green);
+            }
+            .btn-success:hover {
+                background: rgba(39, 174, 96, 0.2);
+            }
+            .btn-generate {
+                width: 100%;
+                padding: 13px;
+                background: var(--brown2);
+                border: 2px solid var(--warm);
+                border-radius: 10px;
+                cursor: pointer;
+                font-family: var(--serif);
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: var(--cream);
+                transition: all 0.2s;
+                margin-top: 8px;
+                overflow: hidden;
+                position: relative;
+            }
+            .btn-generate:hover {
+                background: var(--brown);
+                border-color: var(--warm2);
+            }
+
+            /* GENERATE PAGE */
+            #page-generate {
+                flex-direction: column;
+            }
+            .stats-row {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+            .stat-card {
+                background: var(--cream2);
+                border: 1.5px solid var(--border);
+                border-radius: 10px;
+                padding: 16px;
+                box-shadow: 0 1px 6px rgba(46, 30, 10, 0.06);
+            }
+            .stat-val {
+                font-family: var(--mono);
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: var(--brown2);
+            }
+            .stat-label {
+                font-size: 0.72rem;
+                color: var(--text3);
+                margin-top: 2px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .progress-bar {
+                height: 4px;
+                background: var(--cream3);
+                border-radius: 2px;
+                overflow: hidden;
+                margin-top: 8px;
+            }
+            .progress-fill {
+                height: 100%;
+                background: var(--warm2);
+                border-radius: 2px;
+                transition: width 0.4s;
+            }
+            .gen-layout {
+                display: grid;
+                grid-template-columns: 340px 1fr;
+                gap: 24px;
+                align-items: start;
+            }
+            .type-toggles {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .type-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 8px 12px;
+                background: var(--cream);
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .type-toggle.selected {
+                border-color: var(--warm2);
+                background: rgba(212, 169, 106, 0.12);
+            }
+            .type-toggle-label {
+                font-size: 0.82rem;
+                font-weight: 500;
+                color: var(--text2);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .type-toggle input[type="number"] {
+                width: 50px;
+                padding: 3px 6px;
+                border: 1px solid var(--border);
+                border-radius: 5px;
+                font-family: var(--mono);
+                font-size: 0.75rem;
+                background: var(--cream2);
+                text-align: center;
+                outline: none;
+            }
+            .badge {
+                font-family: var(--mono);
+                font-size: 0.62rem;
+                padding: 2px 7px;
+                border-radius: 4px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+            .badge-mc {
+                background: rgba(122, 144, 104, 0.2);
+                color: var(--sage);
+            }
+            .badge-short {
+                background: rgba(200, 134, 10, 0.15);
+                color: var(--amber);
+            }
+            .badge-long {
+                background: rgba(184, 92, 42, 0.15);
+                color: var(--rust);
+            }
+            .badge-admin {
+                background: rgba(230, 160, 32, 0.2);
+                color: var(--amber2);
+            }
+            .badge-teacher {
+                background: rgba(122, 144, 104, 0.2);
+                color: var(--sage);
+            }
+            .badge-active {
+                background: rgba(39, 174, 96, 0.15);
+                color: var(--green);
+            }
+            .badge-inactive {
+                background: rgba(192, 57, 43, 0.1);
+                color: var(--red);
+            }
+            .tag-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-top: 8px;
+            }
+            .tag {
+                font-family: var(--mono);
+                font-size: 0.68rem;
+                background: rgba(212, 169, 106, 0.2);
+                border: 1px solid var(--warm);
+                color: var(--brown);
+                padding: 3px 9px;
+                border-radius: 20px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .tag:hover {
+                background: rgba(212, 169, 106, 0.4);
+            }
+            .tag.selected {
+                background: var(--warm2);
+                color: var(--cream);
+                border-color: var(--warm2);
+            }
+            .divider {
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 16px 0;
+            }
+
+            /* PREVIEW */
+            .preview-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 14px 18px;
+                background: var(--brown2);
+                border-bottom: 1.5px solid var(--border2);
+            }
+            .preview-actions {
+                display: flex;
+                gap: 8px;
+            }
+            .action-btn {
+                font-family: var(--mono);
+                font-size: 0.68rem;
+                font-weight: 600;
+                padding: 6px 12px;
+                border-radius: 6px;
+                border: 1.5px solid;
+                cursor: pointer;
+                transition: all 0.2s;
+                letter-spacing: 0.5px;
+            }
+            .btn-pdf {
+                color: var(--amber2);
+                border-color: var(--amber2);
+                background: rgba(200, 134, 10, 0.1);
+            }
+            .btn-pdf:hover {
+                background: rgba(200, 134, 10, 0.25);
+            }
+            .btn-sheet {
+                color: var(--sage);
+                border-color: var(--sage);
+                background: rgba(122, 144, 104, 0.1);
+            }
+            .btn-sheet:hover {
+                background: rgba(122, 144, 104, 0.2);
+            }
+            .preview-body {
+                padding: 24px;
+                min-height: 440px;
+            }
+            .exam-preview {
+                background: white;
+                border: 1px solid var(--border2);
+                border-radius: 8px;
+                padding: 32px;
+                box-shadow: 0 2px 16px rgba(46, 30, 10, 0.1);
+                max-height: 600px;
+                overflow-y: auto;
+            }
+            .exam-header {
+                text-align: center;
+                margin-bottom: 24px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 16px;
+            }
+            .exam-title {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #1a1a1a;
+            }
+            .exam-subtitle {
+                font-size: 0.9rem;
+                color: #444;
+                margin-top: 4px;
+            }
+            .exam-meta {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 12px;
+                font-size: 0.78rem;
+                color: #555;
+            }
+            .exam-section-title {
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: #1a1a1a;
+                background: #f0f0f0;
+                padding: 6px 12px;
+                border-left: 4px solid #8a6c4a;
+                margin-bottom: 12px;
+            }
+            .exam-question {
+                margin-bottom: 16px;
+            }
+            .q-number {
+                font-weight: 700;
+                color: #2e1e0a;
+            }
+            .q-text {
+                margin-bottom: 8px;
+                line-height: 1.6;
+                font-size: 0.88rem;
+            }
+            .q-choices {
+                list-style: none;
+                margin-left: 16px;
+            }
+            .q-choices li {
+                padding: 3px 0;
+                font-size: 0.85rem;
+            }
+            .q-blank {
+                border-bottom: 1px solid #aaa;
+                display: inline-block;
+                width: 150px;
+                margin-left: 8px;
+            }
+            .q-longspace {
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                min-height: 120px;
+                margin-top: 8px;
+            }
+            .answer-section {
+                margin-top: 32px;
+                border-top: 2px dashed #aaa;
+                padding-top: 20px;
+            }
+            .answer-section-title {
+                font-size: 1rem;
+                font-weight: 700;
+                text-align: center;
+                margin-bottom: 16px;
+            }
+            .answer-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                margin-bottom: 10px;
+                font-size: 0.85rem;
+            }
+            .answer-num {
+                font-weight: 700;
+                min-width: 24px;
+            }
+            .placeholder-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 400px;
+                color: var(--text3);
+                gap: 12px;
+            }
+            .placeholder-icon {
+                font-size: 3rem;
+                opacity: 0.4;
+            }
+            .placeholder-text {
+                font-size: 0.85rem;
+                opacity: 0.7;
+                text-align: center;
+            }
+
+            /* ADD DATA */
+            #page-add {
+                flex-direction: column;
+            }
+            .add-layout {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+
+            /* ═══ USERS PAGE ═══ */
+            #page-users {
+                flex-direction: column;
+            }
+            .users-layout {
+                display: grid;
+                grid-template-columns: 360px 1fr;
+                gap: 24px;
+                align-items: start;
+            }
+
+            /* USER TABLE */
+            .user-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .user-table th {
+                font-family: var(--mono);
+                font-size: 0.65rem;
+                font-weight: 600;
+                color: var(--text3);
+                text-align: left;
+                padding: 10px 14px;
+                border-bottom: 1.5px solid var(--border);
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                background: rgba(212, 169, 106, 0.06);
+            }
+            .user-table td {
+                padding: 12px 14px;
+                border-bottom: 1px solid rgba(196, 168, 130, 0.25);
+                font-size: 0.83rem;
+                vertical-align: middle;
+            }
+            .user-table tr:hover td {
+                background: rgba(212, 169, 106, 0.05);
+            }
+            .user-actions {
+                display: flex;
+                gap: 6px;
+            }
+
+            /* ROLE indicator bar */
+            .role-bar {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: var(--cream);
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                padding: 8px 12px;
+                margin-bottom: 8px;
+            }
+            .role-bar-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+            .dot-admin {
+                background: var(--amber2);
+            }
+            .dot-teacher {
+                background: var(--sage);
+            }
+            .role-bar-info {
+                flex: 1;
+            }
+            .role-bar-name {
+                font-size: 0.82rem;
+                font-weight: 600;
+                color: var(--text);
+            }
+            .role-bar-desc {
+                font-size: 0.72rem;
+                color: var(--text3);
+            }
+
+            /* HISTORY */
+            #page-history {
+                flex-direction: column;
+            }
+            .history-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .history-table th {
+                font-family: var(--mono);
+                font-size: 0.65rem;
+                font-weight: 600;
+                color: var(--text3);
+                text-align: left;
+                padding: 10px 14px;
+                border-bottom: 1.5px solid var(--border);
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            .history-table td {
+                padding: 11px 14px;
+                border-bottom: 1px solid rgba(196, 168, 130, 0.25);
+                font-size: 0.82rem;
+            }
+            .history-table tr:hover td {
+                background: rgba(212, 169, 106, 0.05);
+            }
+
+            /* CONFIG */
+            #page-config {
+                flex-direction: column;
+            }
+            .config-card {
+                background: var(--cream2);
+                border: 1.5px solid var(--border);
+                border-radius: 12px;
+                padding: 24px;
+                margin-bottom: 20px;
+            }
+            .config-card-title {
+                font-family: var(--mono);
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--text2);
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                margin-bottom: 16px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid var(--border);
+            }
+            .col-map-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+
+            /* PERMISSION MATRIX */
+            .perm-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .perm-table th {
+                font-family: var(--mono);
+                font-size: 0.65rem;
+                color: var(--text3);
+                padding: 8px 12px;
+                border-bottom: 1.5px solid var(--border);
+                letter-spacing: 0.5px;
+            }
+            .perm-table td {
+                padding: 10px 12px;
+                border-bottom: 1px solid rgba(196, 168, 130, 0.2);
+                font-size: 0.8rem;
+            }
+            .perm-table tr:nth-child(even) td {
+                background: rgba(212, 169, 106, 0.04);
+            }
+            .perm-yes {
+                color: var(--green);
+                font-weight: 700;
+                font-family: var(--mono);
+            }
+            .perm-no {
+                color: var(--text3);
+                font-family: var(--mono);
+            }
+            .perm-partial {
+                color: var(--amber);
+                font-weight: 700;
+                font-family: var(--mono);
+            }
+
+            /* ACCESS DENIED */
+            .access-denied {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 300px;
+                gap: 12px;
+                color: var(--text3);
+            }
+            .access-denied-icon {
+                font-size: 3rem;
+            }
+            .access-denied-text {
+                font-size: 0.9rem;
+                text-align: center;
+            }
+
+            /* CONN STATUS */
+            .conn-status {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-family: var(--mono);
+                font-size: 0.65rem;
+            }
+            .conn-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+            }
+            .dot-connected {
+                background: var(--green);
+                box-shadow: 0 0 4px var(--green);
+            }
+            .dot-disconnected {
+                background: var(--text3);
+            }
+
+            /* TOAST */
+            .toast {
+                position: fixed;
+                bottom: 28px;
+                right: 28px;
+                z-index: 9999;
+                background: var(--brown2);
+                color: var(--cream);
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-size: 0.82rem;
+                border-left: 4px solid var(--warm);
+                box-shadow: 0 4px 20px rgba(46, 30, 10, 0.25);
+                transform: translateY(20px);
+                opacity: 0;
+                transition: all 0.3s;
+                pointer-events: none;
+                max-width: 360px;
+            }
+            .toast.show {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            .toast.success {
+                border-left-color: var(--green);
+            }
+            .toast.error {
+                border-left-color: var(--red);
+            }
+
+            /* MODAL */
+            .modal-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 500;
+                background: rgba(46, 30, 10, 0.6);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(2px);
+            }
+            .modal-overlay.open {
+                display: flex;
+            }
+            .modal {
+                background: var(--cream);
+                border: 1.5px solid var(--border);
+                border-radius: 14px;
+                padding: 28px;
+                width: 440px;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+                position: relative;
+            }
+            .modal-title {
+                font-family: var(--serif);
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: var(--brown2);
+                margin-bottom: 20px;
+            }
+            .modal-close {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: var(--text3);
+                font-size: 1.1rem;
+            }
+            .modal-close:hover {
+                color: var(--text);
+            }
+            .modal-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+                margin-top: 20px;
+            }
+
+            /* SCROLLBAR */
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: var(--cream3);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: var(--sand2);
+                border-radius: 3px;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .anim-in {
+                animation: fadeIn 0.3s ease forwards;
+            }
+
+            /* Loading */
+            .spinner {
+                width: 18px;
+                height: 18px;
+                border: 2px solid rgba(212, 169, 106, 0.3);
+                border-top-color: var(--warm2);
+                border-radius: 50%;
+                animation: spin 0.7s linear infinite;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            /* ═══ RESPONSIVE ═══ */
+            @media (max-width: 900px) {
+                .gen-layout {
+                    grid-template-columns: 1fr;
+                }
+                .add-layout {
+                    grid-template-columns: 1fr;
+                }
+                .users-layout {
+                    grid-template-columns: 1fr;
+                }
+                .stats-row {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .main {
+                    padding: 16px;
+                }
+                .topbar {
+                    padding: 0 14px;
+                    flex-wrap: wrap;
+                    height: auto;
+                    gap: 6px;
+                    padding: 8px 14px;
+                }
+                .topbar-nav {
+                    order: 3;
+                    width: 100%;
+                    flex-wrap: wrap;
+                    gap: 4px;
+                    padding-bottom: 6px;
+                }
+                .nav-btn {
+                    font-size: 0.72rem;
+                    padding: 6px 10px;
+                }
+                .col-map-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+                .form-row,
+                .form-row-3 {
+                    grid-template-columns: 1fr;
+                }
+                .exam-meta {
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .brand-badge {
+                    display: none;
+                }
+            }
+            @media (max-width: 600px) {
+                .stats-row {
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                }
+                .stat-val {
+                    font-size: 1.2rem;
+                }
+                .panel-body {
+                    padding: 12px;
+                }
+                .user-table th:nth-child(3),
+                .user-table td:nth-child(3),
+                .user-table th:nth-child(4),
+                .user-table td:nth-child(4) {
+                    display: none;
+                }
+                .brand-name {
+                    font-size: 1rem;
+                }
+                .login-box {
+                    width: 95vw;
+                    padding: 28px 20px;
+                }
+                .col-map-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- ═══════════════════════ LOGIN SCREEN ═══════════════════════ -->
+        <div id="login-screen">
+            <div class="login-box anim-in">
+                <div class="login-logo">
+                    <span class="login-logo-title">✦ ExamForge</span>
+                    <div class="login-divider"></div>
+                    <span class="login-logo-sub">ระบบสร้างข้อสอบอัจฉริยะ</span>
+                </div>
+                <div class="login-error" id="login-error">
+                    ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง
+                </div>
+                <div class="login-field">
+                    <label class="login-label">ชื่อผู้ใช้</label>
+                    <input
+                        class="login-input"
+                        id="login-username"
+                        type="text"
+                        placeholder="กรอกชื่อผู้ใช้"
+                        autocomplete="username"
+                    />
+                </div>
+                <div class="login-field">
+                    <label class="login-label">รหัสผ่าน</label>
+                    <input
+                        class="login-input"
+                        id="login-password"
+                        type="password"
+                        placeholder="กรอกรหัสผ่าน"
+                        autocomplete="current-password"
+                    />
+                </div>
+                <button class="login-btn" onclick="doLogin()" id="login-btn">
+                    เข้าสู่ระบบ
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════ APP SHELL ═══════════════════════ -->
+        <div id="app">
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <div class="brand">
+                    <span class="brand-name">✦ ExamForge</span>
+                    <span class="brand-badge">v2.1</span>
+                </div>
+                <nav class="topbar-nav" id="topbar-nav">
+                    <button
+                        class="nav-btn active"
+                        onclick="showPage('generate')"
+                        id="navbtn-generate"
+                        data-page="generate"
+                    >
+                        📋 สร้างข้อสอบ
+                    </button>
+                    <button
+                        class="nav-btn"
+                        onclick="showPage('add')"
+                        id="navbtn-add"
+                        data-page="add"
+                    >
+                        ✏️ เพิ่มข้อมูล
+                    </button>
+                    <button
+                        class="nav-btn"
+                        onclick="showPage('users')"
+                        id="navbtn-users"
+                        data-page="users"
+                        data-role="admin"
+                    >
+                        👥 จัดการผู้ใช้
+                    </button>
+                    <button
+                        class="nav-btn"
+                        onclick="showPage('config')"
+                        id="navbtn-config"
+                        data-page="config"
+                        data-role="admin"
+                    >
+                        ⚙️ ตั้งค่าระบบ
+                    </button>
+                </nav>
+                <div class="topbar-right">
+                    <div class="user-badge" id="user-badge">
+                        <div class="user-avatar" id="user-avatar"></div>
+                        <span class="user-name" id="user-name-label"></span>
+                        <span class="user-role" id="user-role-label"></span>
+                    </div>
+                    <button
+                        class="logout-btn"
+                        onclick="doLogout()"
+                        title="ออกจากระบบ"
+                    >
+                        ⏏
+                    </button>
+                </div>
+            </div>
+
+            <!-- ═══ PAGE: GENERATE ═══ -->
+            <div class="main active" id="page-generate">
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-total">0</div>
+                        <div class="stat-label">ข้อทั้งหมดในคลัง</div>
+                        <div class="progress-bar">
+                            <div
+                                class="progress-fill"
+                                id="prog-total"
+                                style="width: 0%"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-mc">0</div>
+                        <div class="stat-label">ปรนัย (MC)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-short">0</div>
+                        <div class="stat-label">เขียนสั้น (SA)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-long">0</div>
+                        <div class="stat-label">เขียนยาว (LA)</div>
+                    </div>
+                </div>
+
+                <div class="gen-layout">
+                    <!-- LEFT config -->
+                    <div>
+                        <div class="panel">
+                            <div class="panel-header">
+                                <span class="panel-title">⚙ ตั้งค่าข้อสอบ</span>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label class="form-label">วิชา</label>
+                                    <select
+                                        class="form-select"
+                                        id="sel-subject"
+                                        onchange="onSubjectChange()"
+                                    >
+                                        <option value="">
+                                            -- เลือกวิชา --
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >หัวข้อ / บท</label
+                                    >
+                                    <div id="topic-tags" class="tag-list">
+                                        <span
+                                            style="
+                                                color: var(--text3);
+                                                font-size: 0.78rem;
+                                            "
+                                            >เลือกวิชาก่อน</span
+                                        >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >ชื่อชุดข้อสอบ</label
+                                    >
+                                    <input
+                                        class="form-input"
+                                        id="exam-title"
+                                        placeholder="เช่น สอบกลางภาค ครั้งที่ 1"
+                                    />
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label"
+                                            >ชั้นปี / ระดับ</label
+                                        >
+                                        <input
+                                            class="form-input"
+                                            id="exam-grade"
+                                            placeholder="เช่น ม.5"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label"
+                                            >วันที่สอบ</label
+                                        >
+                                        <input
+                                            class="form-input"
+                                            type="date"
+                                            id="exam-date"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label"
+                                            >เวลา (นาที)</label
+                                        >
+                                        <input
+                                            class="form-input"
+                                            type="number"
+                                            id="exam-time"
+                                            placeholder="60"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label"
+                                            >คะแนนรวม</label
+                                        >
+                                        <input
+                                            class="form-input"
+                                            id="exam-score"
+                                            placeholder="100"
+                                        />
+                                    </div>
+                                </div>
+                                <hr class="divider" />
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >รูปแบบและจำนวนข้อ</label
+                                    >
+                                    <div class="type-toggles">
+                                        <label
+                                            class="type-toggle selected"
+                                            id="tgl-mc"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                id="use-mc"
+                                                checked
+                                                onchange="toggleQType('mc')"
+                                            />
+                                            <span class="type-toggle-label"
+                                                ><span class="badge badge-mc"
+                                                    >MC</span
+                                                >ปรนัย</span
+                                            >
+                                            <input
+                                                type="number"
+                                                id="cnt-mc"
+                                                value="10"
+                                                min="0"
+                                                max="100"
+                                            />
+                                        </label>
+                                        <label
+                                            class="type-toggle selected"
+                                            id="tgl-short"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                id="use-short"
+                                                checked
+                                                onchange="toggleQType('short')"
+                                            />
+                                            <span class="type-toggle-label"
+                                                ><span class="badge badge-short"
+                                                    >SA</span
+                                                >เขียนตอบสั้น</span
+                                            >
+                                            <input
+                                                type="number"
+                                                id="cnt-short"
+                                                value="5"
+                                                min="0"
+                                                max="50"
+                                            />
+                                        </label>
+                                        <label
+                                            class="type-toggle"
+                                            id="tgl-long"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                id="use-long"
+                                                onchange="toggleQType('long')"
+                                            />
+                                            <span class="type-toggle-label"
+                                                ><span class="badge badge-long"
+                                                    >LA</span
+                                                >เขียนตอบยาว</span
+                                            >
+                                            <input
+                                                type="number"
+                                                id="cnt-long"
+                                                value="3"
+                                                min="0"
+                                                max="20"
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >คำชี้แจงเพิ่มเติม</label
+                                    >
+                                    <textarea
+                                        class="form-textarea"
+                                        id="exam-instructions"
+                                        placeholder="คำสั่งพิเศษ..."
+                                    ></textarea>
+                                </div>
+                                <button
+                                    class="btn-generate"
+                                    onclick="generateExam()"
+                                >
+                                    ✦ สร้างข้อสอบ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT preview -->
+                    <div>
+                        <div class="panel">
+                            <div class="preview-top">
+                                <span
+                                    class="panel-title"
+                                    style="color: var(--sand)"
+                                    >📄 ตัวอย่างข้อสอบ</span
+                                >
+                                <div class="preview-actions">
+                                    <button
+                                        class="action-btn btn-pdf"
+                                        onclick="exportPDF()"
+                                    >
+                                        ⬇ PDF
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="preview-body" id="preview-body">
+                                <div class="placeholder-state">
+                                    <div class="placeholder-icon">📋</div>
+                                    <div class="placeholder-text">
+                                        กำหนดค่าทางซ้าย แล้วกด
+                                        <strong>"สร้างข้อสอบ"</strong
+                                        ><br />ระบบจะสุ่มโจทย์จากคลังและแสดงตัวอย่างที่นี่
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ PAGE: ADD DATA ═══ -->
+            <div class="main" id="page-add">
+                <div
+                    style="
+                        font-family: var(--serif);
+                        font-size: 1.4rem;
+                        color: var(--brown2);
+                        margin-bottom: 20px;
+                        font-weight: 600;
+                    "
+                >
+                    เพิ่มข้อมูลลงคลัง
+                </div>
+                <div class="add-layout">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">✏ เพิ่มโจทย์ใหม่</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">วิชา</label>
+                                    <select
+                                        class="form-select"
+                                        id="add-subject"
+                                    >
+                                        <option value="">-- เลือก --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >หัวข้อ / บท</label
+                                    >
+                                    <input
+                                        class="form-input"
+                                        id="add-topic"
+                                        placeholder="บทที่ 3..."
+                                    />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">รูปแบบข้อสอบ</label>
+                                <select
+                                    class="form-select"
+                                    id="add-type"
+                                    onchange="onAddTypeChange()"
+                                >
+                                    <option value="mc">ปรนัย (MC)</option>
+                                    <option value="short">
+                                        เขียนตอบสั้น (SA)
+                                    </option>
+                                    <option value="long">
+                                        เขียนตอบยาว / แสดงวิธี (LA)
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">โจทย์ / คำถาม</label>
+                                <textarea
+                                    class="form-textarea"
+                                    id="add-question"
+                                    style="min-height: 90px"
+                                    placeholder="พิมพ์โจทย์ที่นี่..."
+                                ></textarea>
+                                <div
+                                    style="
+                                        margin-top: 8px;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                        flex-wrap: wrap;
+                                    "
+                                >
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        style="
+                                            font-size: 0.75rem;
+                                            padding: 6px 12px;
+                                        "
+                                        onclick="
+                                            document
+                                                .getElementById('q-img-file')
+                                                .click()
+                                        "
+                                    >
+                                        🖼 แนบรูปโจทย์
+                                    </button>
+                                    <input
+                                        type="file"
+                                        id="q-img-file"
+                                        accept="image/*"
+                                        style="display: none"
+                                        onchange="handleQuestionImg(this)"
+                                    />
+                                    <span
+                                        id="q-img-name"
+                                        style="
+                                            font-size: 0.72rem;
+                                            color: var(--text3);
+                                        "
+                                    ></span>
+                                    <button
+                                        type="button"
+                                        id="q-img-clear"
+                                        class="btn btn-danger"
+                                        style="
+                                            font-size: 0.72rem;
+                                            padding: 4px 8px;
+                                            display: none;
+                                        "
+                                        onclick="clearQuestionImg()"
+                                    >
+                                        ✕ ลบรูป
+                                    </button>
+                                </div>
+                                <div
+                                    id="q-img-preview"
+                                    style="margin-top: 8px; display: none"
+                                >
+                                    <img
+                                        id="q-img-thumb"
+                                        style="
+                                            max-width: 100%;
+                                            max-height: 180px;
+                                            border-radius: 8px;
+                                            border: 1.5px solid var(--border);
+                                            object-fit: contain;
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            <div id="mc-choices">
+                                <div class="form-group">
+                                    <label class="form-label">ตัวเลือก</label>
+                                    <input
+                                        class="form-input"
+                                        id="ch-a"
+                                        placeholder="ก. "
+                                        style="margin-bottom: 6px"
+                                    />
+                                    <input
+                                        class="form-input"
+                                        id="ch-b"
+                                        placeholder="ข. "
+                                        style="margin-bottom: 6px"
+                                    />
+                                    <input
+                                        class="form-input"
+                                        id="ch-c"
+                                        placeholder="ค. "
+                                        style="margin-bottom: 6px"
+                                    />
+                                    <input
+                                        class="form-input"
+                                        id="ch-d"
+                                        placeholder="ง. "
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >คำตอบที่ถูก</label
+                                    >
+                                    <select class="form-select" id="mc-ans">
+                                        <option value="ก">ก</option>
+                                        <option value="ข">ข</option>
+                                        <option value="ค">ค</option>
+                                        <option value="ง">ง</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="text-ans-area" style="display: none">
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >เฉลย / แนวตอบ</label
+                                    >
+                                    <textarea
+                                        class="form-textarea"
+                                        id="text-ans"
+                                        placeholder="เฉลยที่นี่..."
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">URL ภาพเฉลย</label>
+                                <div
+                                    style="
+                                        display: flex;
+                                        gap: 8px;
+                                        align-items: center;
+                                    "
+                                >
+                                    <input
+                                        class="form-input"
+                                        id="ans-img"
+                                        placeholder="https://... หรืออัปโหลดจากเครื่อง"
+                                    />
+                                    <button
+                                        class="btn btn-secondary"
+                                        onclick="
+                                            document
+                                                .getElementById('ans-img-file')
+                                                .click()
+                                        "
+                                        style="white-space: nowrap"
+                                    >
+                                        📁 เลือกภาพ
+                                    </button>
+                                    <input
+                                        type="file"
+                                        id="ans-img-file"
+                                        accept="image/*"
+                                        style="display: none"
+                                        onchange="handleAnswerImg(this)"
+                                    />
+                                </div>
+                                <div
+                                    id="ans-img-preview"
+                                    style="margin-top: 8px; display: none"
+                                >
+                                    <img
+                                        id="ans-img-thumb"
+                                        style="
+                                            max-width: 100%;
+                                            max-height: 120px;
+                                            border-radius: 6px;
+                                            border: 1px solid var(--border);
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">ความยาก</label>
+                                    <select class="form-select" id="add-diff">
+                                        <option value="easy">ง่าย</option>
+                                        <option value="medium" selected>
+                                            ปานกลาง
+                                        </option>
+                                        <option value="hard">ยาก</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">คะแนน</label>
+                                    <input
+                                        class="form-input"
+                                        type="number"
+                                        id="add-pts"
+                                        value="1"
+                                        min="1"
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                class="btn-generate"
+                                onclick="addQuestion()"
+                                style="
+                                    font-family: var(--sans);
+                                    font-size: 0.9rem;
+                                "
+                            >
+                                ✦ บันทึกโจทย์ลงคลัง
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="panel" style="margin-bottom: 20px">
+                            <div class="panel-header">
+                                <span class="panel-title"
+                                    >📊 นำเข้าแบบกลุ่ม</span
+                                >
+                            </div>
+                            <div class="panel-body">
+                                <p
+                                    style="
+                                        font-size: 0.82rem;
+                                        color: var(--text2);
+                                        line-height: 1.7;
+                                        margin-bottom: 14px;
+                                    "
+                                >
+                                    นำเข้าโจทย์จำนวนมากพร้อมกันผ่าน CSV
+                                </p>
+                                <div style="display: flex; gap: 8px">
+                                    <button
+                                        class="btn btn-primary"
+                                        onclick="
+                                            document
+                                                .getElementById('csv-upload')
+                                                .click()
+                                        "
+                                    >
+                                        📎 อัปโหลด CSV
+                                    </button>
+                                    <input
+                                        type="file"
+                                        id="csv-upload"
+                                        accept=".csv"
+                                        style="display: none"
+                                        onchange="handleCSVUpload(this)"
+                                    />
+                                    <button
+                                        class="btn btn-secondary"
+                                        onclick="downloadTemplate()"
+                                    >
+                                        📋 Template
+                                    </button>
+                                </div>
+                                <hr class="divider" />
+                                <p
+                                    style="
+                                        font-size: 0.72rem;
+                                        color: var(--text3);
+                                    "
+                                >
+                                    คอลัมน์: subject, topic, type, question,
+                                    choice_a–d, answer, answer_img_url,
+                                    difficulty, points
+                                </p>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <div class="panel-header">
+                                <span class="panel-title">📋 จัดการวิชา</span>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label class="form-label"
+                                        >เพิ่มวิชาใหม่</label
+                                    >
+                                    <div style="display: flex; gap: 8px">
+                                        <input
+                                            class="form-input"
+                                            id="new-subject"
+                                            placeholder="ชื่อวิชา"
+                                        />
+                                        <button
+                                            class="btn btn-primary"
+                                            onclick="addSubject()"
+                                        >
+                                            + เพิ่ม
+                                        </button>
+                                    </div>
+                                </div>
+                                <label class="form-label">วิชาที่มี</label>
+                                <div class="tag-list" id="subject-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ PAGE: USERS (Admin only) ═══ -->
+            <div class="main" id="page-users" style="flex-direction: column">
+                <div
+                    style="
+                        font-family: var(--serif);
+                        font-size: 1.4rem;
+                        color: var(--brown2);
+                        margin-bottom: 20px;
+                        font-weight: 600;
+                    "
+                >
+                    👥 จัดการผู้ใช้งาน
+                </div>
+                <div class="users-layout">
+                    <!-- Add user form -->
+                    <div>
+                        <div class="panel" style="margin-bottom: 20px">
+                            <div class="panel-header">
+                                <span class="panel-title"
+                                    >➕ เพิ่มผู้ใช้ใหม่</span
+                                >
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label class="form-label">ชื่อผู้ใช้</label>
+                                    <input
+                                        class="form-input"
+                                        id="new-uname"
+                                        placeholder="username"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">ชื่อแสดง</label>
+                                    <input
+                                        class="form-input"
+                                        id="new-dname"
+                                        placeholder="ชื่อ-นามสกุล"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">รหัสผ่าน</label>
+                                    <input
+                                        class="form-input"
+                                        type="password"
+                                        id="new-pass"
+                                        placeholder="อย่างน้อย 6 ตัวอักษร"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">บทบาท</label>
+                                    <select class="form-select" id="new-role">
+                                        <option value="teacher">
+                                            Teacher — สร้างข้อสอบ + เพิ่มข้อมูล
+                                        </option>
+                                        <option value="admin">
+                                            Admin — เข้าได้ทุกส่วน
+                                        </option>
+                                    </select>
+                                </div>
+                                <button
+                                    class="btn btn-primary"
+                                    style="width: 100%; padding: 11px"
+                                    onclick="addUser()"
+                                >
+                                    ✦ เพิ่มผู้ใช้
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Role descriptions -->
+                        <div class="panel">
+                            <div class="panel-header">
+                                <span class="panel-title"
+                                    >🔐 สิทธิ์การเข้าถึง</span
+                                >
+                            </div>
+                            <div class="panel-body">
+                                <div class="role-bar">
+                                    <div class="role-bar-dot dot-admin"></div>
+                                    <div class="role-bar-info">
+                                        <div class="role-bar-name">Admin</div>
+                                        <div class="role-bar-desc">
+                                            เข้าได้ทุกหน้า รวมตั้งค่าและจัดการ
+                                            User
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-admin">FULL</span>
+                                </div>
+                                <div class="role-bar">
+                                    <div class="role-bar-dot dot-teacher"></div>
+                                    <div class="role-bar-info">
+                                        <div class="role-bar-name">Teacher</div>
+                                        <div class="role-bar-desc">
+                                            สร้างข้อสอบ เพิ่มข้อมูล ดูประวัติ
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-teacher"
+                                        >LIMITED</span
+                                    >
+                                </div>
+                                <hr class="divider" />
+                                <table class="perm-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ฟีเจอร์</th>
+                                            <th>Admin</th>
+                                            <th>Teacher</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>สร้างข้อสอบ</td>
+                                            <td class="perm-yes">✓</td>
+                                            <td class="perm-yes">✓</td>
+                                        </tr>
+                                        <tr>
+                                            <td>เพิ่มโจทย์</td>
+                                            <td class="perm-yes">✓</td>
+                                            <td class="perm-yes">✓</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ดูประวัติ</td>
+                                            <td class="perm-yes">✓</td>
+                                            <td class="perm-yes">✓</td>
+                                        </tr>
+                                        <tr>
+                                            <td>จัดการ User</td>
+                                            <td class="perm-yes">✓</td>
+                                            <td class="perm-no">—</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ตั้งค่าระบบ</td>
+                                            <td class="perm-yes">✓</td>
+                                            <td class="perm-no">—</td>
+                                        </tr>
+                                        <tr>
+                                            <td>เชื่อม Sheet</td>
+                                            <td class="perm-yes">✓</td>
+                                            <td class="perm-no">—</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User list -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title"
+                                >รายชื่อผู้ใช้ทั้งหมด</span
+                            >
+                            <button
+                                class="btn btn-secondary"
+                                style="font-size: 0.68rem; padding: 5px 10px"
+                                onclick="syncUsersSheet()"
+                            >
+                                ☁ ซิงค์ Sheet
+                            </button>
+                        </div>
+                        <div class="panel-body" style="padding: 0">
+                            <table class="user-table" id="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>ผู้ใช้</th>
+                                        <th>บทบาท</th>
+                                        <th>สถานะ</th>
+                                        <th>ล็อกอินล่าสุด</th>
+                                        <th>การจัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ PAGE: CONFIG (Admin only) ═══ -->
+            <div class="main" id="page-config" style="flex-direction: column">
+                <div
+                    style="
+                        font-family: var(--serif);
+                        font-size: 1.4rem;
+                        color: var(--brown2);
+                        margin-bottom: 20px;
+                        font-weight: 600;
+                    "
+                >
+                    ⚙️ ตั้งค่าระบบ
+                </div>
+
+                <div class="config-card">
+                    <div class="config-card-title">
+                        🔗 Google Sheet & Apps Script
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Google Sheet URL</label>
+                        <div style="display: flex; gap: 8px">
+                            <input
+                                class="form-input"
+                                id="cfg-sheet-url"
+                                placeholder="https://docs.google.com/spreadsheets/d/..."
+                            />
+                            <button
+                                class="btn btn-primary"
+                                onclick="saveSheetConfig()"
+                            >
+                                บันทึก
+                            </button>
+                            <button
+                                class="btn btn-secondary"
+                                onclick="testConn()"
+                            >
+                                ทดสอบ
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"
+                            >Apps Script Web App URL</label
+                        >
+                        <input
+                            class="form-input"
+                            id="cfg-script-url"
+                            placeholder="https://script.google.com/macros/s/..."
+                        />
+                        <p
+                            style="
+                                font-size: 0.72rem;
+                                color: var(--text3);
+                                margin-top: 5px;
+                            "
+                        >
+                            ต้องการ Apps Script เพื่ออ่าน-เขียนข้อมูล —
+                            <a
+                                href="#"
+                                onclick="toggleGuide()"
+                                style="color: var(--warm2)"
+                                >ดูคำแนะนำ ▾</a
+                            >
+                        </p>
+                    </div>
+                    <div id="gas-guide" style="display: none; margin-top: 12px">
+                        <p
+                            style="
+                                font-size: 0.8rem;
+                                color: var(--text2);
+                                line-height: 1.8;
+                                margin-bottom: 8px;
+                            "
+                        >
+                            1. เปิด Google Sheet →
+                            <strong>Extensions → Apps Script</strong><br />
+                            2. สร้าง Sheet ชื่อ:
+                            <code
+                                style="
+                                    background: var(--cream3);
+                                    padding: 1px 5px;
+                                    border-radius: 3px;
+                                "
+                                >questions</code
+                            >,
+                            <code
+                                style="
+                                    background: var(--cream3);
+                                    padding: 1px 5px;
+                                    border-radius: 3px;
+                                "
+                                >users</code
+                            >,
+                            <code
+                                style="
+                                    background: var(--cream3);
+                                    padding: 1px 5px;
+                                    border-radius: 3px;
+                                "
+                                >exam_history</code
+                            ><br />
+                            3. วางโค้ดด้านล่าง → Deploy → Web App → Anyone<br />
+                            4. คัดลอก URL มาวางด้านบน
+                        </p>
+                        <details>
+                            <summary
+                                style="
+                                    cursor: pointer;
+                                    font-family: var(--mono);
+                                    font-size: 0.72rem;
+                                    color: var(--amber2);
+                                    margin-bottom: 8px;
+                                "
+                            >
+                                ดูโค้ด Apps Script ▾
+                            </summary>
+                            <pre
+                                style="
+                                    background: var(--brown3);
+                                    color: var(--cream2);
+                                    padding: 16px;
+                                    border-radius: 8px;
+                                    font-family: var(--mono);
+                                    font-size: 0.7rem;
+                                    overflow-x: auto;
+                                    line-height: 1.6;
+                                    margin-top: 8px;
+                                    white-space: pre-wrap;
+                                "
+                            >
+function doGet(e) {
+  var action = e.parameter.action;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (action === 'getQuestions') {
+    return jsonResponse(getSheet(ss,'questions'));
+  }
+  if (action === 'getUsers') {
+    return jsonResponse(getSheet(ss,'users').map(function(u){
+      return {username:u.username,displayName:u.displayName,role:u.role,status:u.status,lastLogin:u.lastLogin};
+    }));
+  }
+  if (action === 'login') {
+    var users = getSheet(ss,'users');
+    var user = users.find(function(u){ return u.username===e.parameter.username && u.password===e.parameter.password && u.status==='active'; });
+    if (user) {
+      // Update lastLogin
+      var sheet = ss.getSheetByName('users');
+      var data = sheet.getDataRange().getValues();
+      for (var i=1;i &lt; data.length;i++) {
+        if (data[i][0]===user.username) { sheet.getRange(i+1,6).setValue(new Date().toISOString()); break; }
+      }
+      return jsonResponse({ok:true,role:user.role,displayName:user.displayName});
+    }
+    return jsonResponse({ok:false});
+  }
+  return ContentService.createTextOutput('ExamForge API');
+}
+
+function doPost(e) {
+  var body = JSON.parse(e.postData.contents);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (body.action === 'addQuestion') {
+    var s = ss.getSheetByName('questions'); if(!s) s=ss.insertSheet('questions');
+    if(s.getLastRow()===0) s.appendRow(['subject','topic','type','question','choice_a','choice_b','choice_c','choice_d','answer','answer_img_url','difficulty','points','created_at','created_by']);
+    s.appendRow([body.subject,body.topic,body.type,body.question,body.choice_a||'',body.choice_b||'',body.choice_c||'',body.choice_d||'',body.answer,body.answer_img_url||'',body.difficulty,body.points,new Date().toISOString(),body.created_by||'']);
+  }
+  if (body.action === 'saveExam') {
+    var s = ss.getSheetByName('exam_history'); if(!s) s=ss.insertSheet('exam_history');
+    if(s.getLastRow()===0) s.appendRow(['title','subject','total','types','created_by','created_at']);
+    s.appendRow([body.title,body.subject,body.total,body.types,body.created_by,new Date().toISOString()]);
+  }
+  if (body.action === 'addUser') {
+    var s = ss.getSheetByName('users'); if(!s) s=ss.insertSheet('users');
+    if(s.getLastRow()===0) s.appendRow(['username','password','displayName','role','status','lastLogin']);
+    s.appendRow([body.username,body.password,body.displayName,body.role,'active','']);
+  }
+  if (body.action === 'toggleUser') {
+    var s = ss.getSheetByName('users');
+    var data = s.getDataRange().getValues();
+    for(var i=1;i &lt; data.length;i++){
+      if(data[i][0]===body.username){ s.getRange(i+1,5).setValue(body.status); break; }
+    }
+  }
+  return jsonResponse({ok:true});
+}
+
+function getSheet(ss, name) {
+  var s = ss.getSheetByName(name); if(!s) return [];
+  var data = s.getDataRange().getValues();
+  if(data.length &lt; 2) return [];
+  var h = data[0];
+  return data.slice(1).map(function(r){ var o={}; h.forEach(function(k,i){o[k]=r[i];}); return o; });
+}
+
+function jsonResponse(data) {
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}</pre
+                            >
+                        </details>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-card-title">📊 Column Mapping</div>
+                    <div class="col-map-grid">
+                        <div class="form-group">
+                            <label class="form-label">วิชา</label
+                            ><input class="form-input" value="subject" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">หัวข้อ</label
+                            ><input class="form-input" value="topic" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ประเภท</label
+                            ><input class="form-input" value="type" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">โจทย์</label
+                            ><input class="form-input" value="question" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">คำตอบ</label
+                            ><input class="form-input" value="answer" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ภาพเฉลย</label
+                            ><input class="form-input" value="answer_img_url" />
+                        </div>
+                    </div>
+                    <button
+                        class="btn btn-primary"
+                        onclick="
+                            showToast('✅ บันทึก Column Mapping', 'success')
+                        "
+                    >
+                        💾 บันทึก
+                    </button>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-card-title">📄 ตั้งค่า PDF</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">โรงเรียน / สถาบัน</label
+                            ><input
+                                class="form-input"
+                                id="cfg-school"
+                                placeholder="ชื่อโรงเรียน"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ขนาดกระดาษ</label
+                            ><select class="form-select">
+                                <option>A4</option>
+                                <option>Letter</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">URL โลโก้</label
+                        ><input
+                            class="form-input"
+                            id="cfg-logo"
+                            placeholder="https://..."
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ข้อความท้าย</label
+                        ><input
+                            class="form-input"
+                            id="cfg-footer"
+                            placeholder="ห้ามนำข้อสอบออกจากห้องสอบ"
+                        />
+                    </div>
+                    <button class="btn btn-primary" onclick="savePDFConfig()">
+                        💾 บันทึก PDF Config
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- #app -->
+
+        <!-- MODAL: Edit User -->
+        <div class="modal-overlay" id="modal-edit-user">
+            <div class="modal">
+                <button
+                    class="modal-close"
+                    onclick="closeModal('modal-edit-user')"
+                >
+                    ✕
+                </button>
+                <div class="modal-title">แก้ไขผู้ใช้</div>
+                <input type="hidden" id="edit-uname-orig" />
+                <div class="form-group">
+                    <label class="form-label">ชื่อแสดง</label
+                    ><input class="form-input" id="edit-dname" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">บทบาท</label>
+                    <select class="form-select" id="edit-role">
+                        <option value="teacher">Teacher</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"
+                        >รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)</label
+                    ><input
+                        class="form-input"
+                        type="password"
+                        id="edit-pass"
+                        placeholder="ใหม่..."
+                    />
+                </div>
+                <div class="modal-actions">
+                    <button
+                        class="btn btn-secondary"
+                        onclick="closeModal('modal-edit-user')"
+                    >
+                        ยกเลิก
+                    </button>
+                    <button class="btn btn-primary" onclick="saveEditUser()">
+                        บันทึก
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+
+        <script>
+            // ═══════════════ STATE ═══════════════
+            const S = {
+                user: null,
+                scriptUrl: localStorage.getItem("ef_script") || "",
+                questions:
+                    JSON.parse(
+                        localStorage.getItem("ef_questions") || "null",
+                    ) || [],
+                subjects:
+                    JSON.parse(localStorage.getItem("ef_subjects") || "null") ||
+                    [],
+                selectedTopics: [],
+                generatedExam: null,
+                answerImgData: null, // base64 of uploaded answer image
+                questionImgData: null, // base64 of uploaded question image
+                users: JSON.parse(
+                    localStorage.getItem("ef_users") || "null",
+                ) || [
+                    {
+                        username: "admin",
+                        password: "admin",
+                        displayName: "ผู้ดูแลระบบ",
+                        role: "admin",
+                        status: "active",
+                        lastLogin: "",
+                    },
+                    {
+                        username: "test",
+                        password: "test",
+                        displayName: "test",
+                        role: "teacher",
+                        status: "active",
+                        lastLogin: "",
+                    },
+                ],
+            };
+
+            // ═══════════════ AUTH ═══════════════
+            function doLogin() {
+                const uname = document
+                    .getElementById("login-username")
+                    .value.trim();
+                const pass = document.getElementById("login-password").value;
+                const btn = document.getElementById("login-btn");
+                const errEl = document.getElementById("login-error");
+                errEl.classList.remove("show");
+                btn.innerHTML = '<span class="spinner"></span> กำลังตรวจสอบ...';
+                btn.disabled = true;
+
+                setTimeout(() => {
+                    const found = S.users.find(
+                        (u) =>
+                            u.username === uname &&
+                            u.password === pass &&
+                            u.status === "active",
+                    );
+                    btn.innerHTML = "เข้าสู่ระบบ";
+                    btn.disabled = false;
+                    if (!found) {
+                        errEl.classList.add("show");
+                        document.getElementById("login-password").value = "";
+                        return;
+                    }
+                    found.lastLogin = new Date().toLocaleString("th-TH");
+                    persistUsers();
+                    S.user = found;
+                    // Remember session
+                    localStorage.setItem(
+                        "ef_session",
+                        JSON.stringify({
+                            username: found.username,
+                            ts: Date.now(),
+                        }),
+                    );
+                    launchApp();
+                }, 700);
+            }
+
+            function launchApp() {
+                const u = S.user;
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("app").classList.add("visible");
+                applyRoleUI();
+                // Load demo data only if no questions saved yet
+                if (S.questions.length === 0) loadDemoData();
+                else {
+                    updateStats();
+                    updateSubjectSelects();
+                }
+                renderUsers();
+                showToast(`🎉 ยินดีต้อนรับ ${u.displayName}`, "success");
+            }
+
+            // Auto-login if session exists
+            window.addEventListener("DOMContentLoaded", () => {
+                const sess = localStorage.getItem("ef_session");
+                if (sess) {
+                    try {
+                        const { username, ts } = JSON.parse(sess);
+                        // Session valid for 7 days
+                        if (Date.now() - ts < 7 * 24 * 3600 * 1000) {
+                            const found = S.users.find(
+                                (u) =>
+                                    u.username === username &&
+                                    u.status === "active",
+                            );
+                            if (found) {
+                                S.user = found;
+                                launchApp();
+                                return;
+                            }
+                        }
+                    } catch {}
+                    localStorage.removeItem("ef_session");
+                }
+            });
+
+            function doLogout() {
+                S.user = null;
+                localStorage.removeItem("ef_session");
+                document.getElementById("login-screen").style.display = "flex";
+                document.getElementById("app").classList.remove("visible");
+                document.getElementById("login-username").value = "";
+                document.getElementById("login-password").value = "";
+                document.getElementById("login-error").classList.remove("show");
+            }
+
+            document
+                .getElementById("login-password")
+                .addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") doLogin();
+                });
+            document
+                .getElementById("login-username")
+                .addEventListener("keydown", (e) => {
+                    if (e.key === "Enter")
+                        document.getElementById("login-password").focus();
+                });
+
+            function applyRoleUI() {
+                const u = S.user;
+                // Avatar
+                const av = document.getElementById("user-avatar");
+                av.textContent = u.displayName.charAt(0);
+                av.className = `user-avatar avatar-${u.role}`;
+                document.getElementById("user-name-label").textContent =
+                    u.displayName;
+                const rl = document.getElementById("user-role-label");
+                rl.textContent = u.role === "admin" ? "ADMIN" : "TEACHER";
+                rl.className = `user-role role-${u.role}`;
+
+                // Nav buttons
+                document
+                    .querySelectorAll(".nav-btn[data-role]")
+                    .forEach((btn) => {
+                        const required = btn.getAttribute("data-role");
+                        if (required && u.role !== required)
+                            btn.classList.add("hidden");
+                        else btn.classList.remove("hidden");
+                    });
+            }
+
+            function canAccess(role) {
+                return (
+                    S.user && (S.user.role === "admin" || S.user.role === role)
+                );
+            }
+
+            // ═══════════════ NAVIGATION ═══════════════
+            const PAGE_ROLES = {
+                generate: "teacher",
+                add: "teacher",
+                users: "admin",
+                config: "admin",
+            };
+
+            function showPage(name) {
+                if (!canAccess(PAGE_ROLES[name])) {
+                    showToast("⛔ คุณไม่มีสิทธิ์เข้าถึงหน้านี้", "error");
+                    return;
+                }
+                document
+                    .querySelectorAll(".main")
+                    .forEach((el) => el.classList.remove("active"));
+                document
+                    .querySelectorAll(".nav-btn")
+                    .forEach((el) => el.classList.remove("active"));
+                document.getElementById("page-" + name).classList.add("active");
+                const nb = document.getElementById("navbtn-" + name);
+                if (nb) nb.classList.add("active");
+            }
+
+            function activateTab(el) {
+                document
+                    .querySelectorAll(".section-tabs .tab")
+                    .forEach((t) => t.classList.remove("active"));
+                el.classList.add("active");
+            }
+            function loadDemoData() {
+                S.questions = [];
+                persistQuestions();
+                updateStats();
+                updateSubjectSelects();
+            }
+
+            function persistQuestions() {
+                try {
+                    localStorage.setItem(
+                        "ef_questions",
+                        JSON.stringify(S.questions),
+                    );
+                } catch (e) {}
+            }
+
+            function persistSubjects() {
+                try {
+                    localStorage.setItem(
+                        "ef_subjects",
+                        JSON.stringify(S.subjects),
+                    );
+                } catch (e) {}
+            }
+
+            function updateStats() {
+                const mc = S.questions.filter((q) => q.type === "mc").length;
+                const sh = S.questions.filter((q) => q.type === "short").length;
+                const lo = S.questions.filter((q) => q.type === "long").length;
+                const total = S.questions.length;
+                document.getElementById("stat-total").textContent = total;
+                document.getElementById("stat-mc").textContent = mc;
+                document.getElementById("stat-short").textContent = sh;
+                document.getElementById("stat-long").textContent = lo;
+                document.getElementById("prog-total").style.width =
+                    Math.min(total * 5, 100) + "%";
+            }
+
+            function updateSubjectSelects() {
+                // Merge subjects from questions + manually added
+                const fromQ = [...new Set(S.questions.map((q) => q.subject))];
+                fromQ.forEach((s) => {
+                    if (!S.subjects.includes(s)) S.subjects.push(s);
+                });
+                persistSubjects();
+                ["sel-subject", "add-subject"].forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const cur = el.value;
+                    el.innerHTML = '<option value="">-- เลือกวิชา --</option>';
+                    S.subjects.forEach(
+                        (s) =>
+                            (el.innerHTML += `<option value="${s}"${s === cur ? " selected" : ""}>${s}</option>`),
+                    );
+                });
+                renderSubjectTags();
+            }
+
+            function renderSubjectTags() {
+                const el = document.getElementById("subject-list");
+                if (!el) return;
+                el.innerHTML =
+                    S.subjects
+                        .map(
+                            (s) =>
+                                `<span class="tag" onclick="removeSubjectTag('${s}', this)">${s} ✕</span>`,
+                        )
+                        .join("") ||
+                    '<span style="color:var(--text3);font-size:.78rem">ยังไม่มีวิชา</span>';
+            }
+
+            function removeSubjectTag(name, el) {
+                if (!confirm(`ลบวิชา "${name}" ออก? (ข้อมูลโจทย์ยังคงอยู่)`))
+                    return;
+                S.subjects = S.subjects.filter((s) => s !== name);
+                persistSubjects();
+                updateSubjectSelects();
+            }
+
+            // ═══════════════ GENERATE ═══════════════
+            function onSubjectChange() {
+                const subj = document.getElementById("sel-subject").value;
+                const topics = [
+                    ...new Set(
+                        S.questions
+                            .filter((q) => q.subject === subj)
+                            .map((q) => q.topic),
+                    ),
+                ];
+                const container = document.getElementById("topic-tags");
+                S.selectedTopics = [];
+                if (!subj) {
+                    container.innerHTML =
+                        '<span style="color:var(--text3);font-size:.78rem">เลือกวิชาก่อน</span>';
+                    return;
+                }
+                container.innerHTML = topics
+                    .map(
+                        (t) =>
+                            `<span class="tag" onclick="toggleTopic('${t}',this)">${t}</span>`,
+                    )
+                    .join("");
+            }
+
+            function toggleTopic(t, el) {
+                if (S.selectedTopics.includes(t)) {
+                    S.selectedTopics = S.selectedTopics.filter((x) => x !== t);
+                    el.classList.remove("selected");
+                } else {
+                    S.selectedTopics.push(t);
+                    el.classList.add("selected");
+                }
+            }
+
+            function toggleQType(type) {
+                const chk = document.getElementById("use-" + type);
+                document
+                    .getElementById("tgl-" + type)
+                    .classList.toggle("selected", chk.checked);
+            }
+
+            function generateExam() {
+                const subj = document.getElementById("sel-subject").value;
+                const title =
+                    document.getElementById("exam-title").value || "ข้อสอบ";
+                const grade = document.getElementById("exam-grade").value;
+                const date = document.getElementById("exam-date").value;
+                const time = document.getElementById("exam-time").value;
+                const score =
+                    document.getElementById("exam-score").value || "100";
+                const instr =
+                    document.getElementById("exam-instructions").value;
+                const useMC = document.getElementById("use-mc").checked;
+                const useShort = document.getElementById("use-short").checked;
+                const useLong = document.getElementById("use-long").checked;
+                const cntMC =
+                    parseInt(document.getElementById("cnt-mc").value) || 0;
+                const cntShort =
+                    parseInt(document.getElementById("cnt-short").value) || 0;
+                const cntLong =
+                    parseInt(document.getElementById("cnt-long").value) || 0;
+
+                let pool = S.questions;
+                if (subj) pool = pool.filter((q) => q.subject === subj);
+                if (S.selectedTopics.length > 0)
+                    pool = pool.filter((q) =>
+                        S.selectedTopics.includes(q.topic),
+                    );
+                const sh = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+                const picked = {
+                    mc: useMC
+                        ? sh(pool.filter((q) => q.type === "mc")).slice(
+                              0,
+                              cntMC,
+                          )
+                        : [],
+                    short: useShort
+                        ? sh(pool.filter((q) => q.type === "short")).slice(
+                              0,
+                              cntShort,
+                          )
+                        : [],
+                    long: useLong
+                        ? sh(pool.filter((q) => q.type === "long")).slice(
+                              0,
+                              cntLong,
+                          )
+                        : [],
+                };
+
+                const total =
+                    picked.mc.length + picked.short.length + picked.long.length;
+                if (total === 0) {
+                    showToast("⚠️ ไม่พบข้อสอบที่ตรงกับเงื่อนไข", "error");
+                    return;
+                }
+                S.generatedExam = {
+                    title,
+                    grade,
+                    date,
+                    time,
+                    score,
+                    instr,
+                    subj,
+                    picked,
+                };
+                renderPreview();
+                showToast(`✅ สร้างข้อสอบ ${total} ข้อ สำเร็จ`, "success");
+            }
+
+            function renderPreview() {
+                const { title, grade, date, time, score, instr, picked } =
+                    S.generatedExam;
+                const dateStr = date
+                    ? new Date(date).toLocaleDateString("th-TH", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                      })
+                    : "";
+                const school =
+                    document.getElementById("cfg-school")?.value || "";
+                let num = 1,
+                    html = `<div class="exam-preview" id="exam-content">
+    <div class="exam-header">
+      ${school ? `<div style="font-size:.95rem;font-weight:700;margin-bottom:4px">${school}</div>` : ""}
+      <div class="exam-title">${title}</div>
+      ${grade ? `<div class="exam-subtitle">ชั้น ${grade}</div>` : ""}
+      <div class="exam-meta">
+        <span>วันที่: ${dateStr}</span>
+        <span>เวลา: ${time || "—"} นาที</span>
+        <span>คะแนนรวม: ${score} คะแนน</span>
+      </div>
+    </div>
+    ${instr ? `<div style="font-size:.8rem;border:1px solid #ccc;padding:8px 12px;border-radius:4px;margin-bottom:16px;color:#555">${instr}</div>` : ""}`;
+
+                if (picked.mc.length > 0) {
+                    html += `<div class="exam-section"><div class="exam-section-title">ตอนที่ 1: ปรนัย (${picked.mc.length} ข้อ)</div>`;
+                    picked.mc.forEach((q) => {
+                        const qImg = q.question_img
+                            ? `<div style="margin:6px 0 8px"><img src="${q.question_img}" style="max-width:100%;max-height:220px;border-radius:6px;border:1px solid #ddd;object-fit:contain" /></div>`
+                            : "";
+                        html += `<div class="exam-question"><div class="q-text"><span class="q-number">ข้อ ${num++}.</span> ${q.question}</div>${qImg}
+      <ul class="q-choices"><li>${q.choice_a}</li><li>${q.choice_b}</li><li>${q.choice_c}</li><li>${q.choice_d}</li></ul></div>`;
+                    });
+                    html += `</div>`;
+                }
+                if (picked.short.length > 0) {
+                    const s = (picked.mc.length > 0 ? 1 : 0) + 1;
+                    html += `<div class="exam-section"><div class="exam-section-title">ตอนที่ ${s}: เขียนตอบสั้น (${picked.short.length} ข้อ)</div>`;
+                    picked.short.forEach((q) => {
+                        const qImg = q.question_img
+                            ? `<div style="margin:6px 0 8px"><img src="${q.question_img}" style="max-width:100%;max-height:220px;border-radius:6px;border:1px solid #ddd;object-fit:contain" /></div>`
+                            : "";
+                        html += `<div class="exam-question"><div class="q-text"><span class="q-number">ข้อ ${num++}.</span> ${q.question}</div>${qImg}
+      <div>คำตอบ: <span class="q-blank"></span></div></div>`;
+                    });
+                    html += `</div>`;
+                }
+                if (picked.long.length > 0) {
+                    const s =
+                        (picked.mc.length > 0 ? 1 : 0) +
+                        (picked.short.length > 0 ? 1 : 0) +
+                        1;
+                    html += `<div class="exam-section"><div class="exam-section-title">ตอนที่ ${s}: เขียนตอบยาว / แสดงวิธีทำ (${picked.long.length} ข้อ)</div>`;
+                    picked.long.forEach((q) => {
+                        const qImg = q.question_img
+                            ? `<div style="margin:6px 0 8px"><img src="${q.question_img}" style="max-width:100%;max-height:220px;border-radius:6px;border:1px solid #ddd;object-fit:contain" /></div>`
+                            : "";
+                        html += `<div class="exam-question"><div class="q-text"><span class="q-number">ข้อ ${num++}.</span> ${q.question}</div>${qImg}
+      <div class="q-longspace"></div></div>`;
+                    });
+                    html += `</div>`;
+                }
+
+                // Answer key
+                html += `<div class="answer-section"><div class="answer-section-title">— เฉลย —</div>`;
+                let an = 1;
+                [...picked.mc, ...picked.short, ...picked.long].forEach((q) => {
+                    html += `<div class="answer-item"><span class="answer-num">${an++}.</span><span>${q.answer}${q.answer_img_url ? `<br><img src="${q.answer_img_url}" style="max-width:100%;border:1px solid #ddd;border-radius:4px;margin-top:4px" alt="เฉลย">` : ""}
+    </span></div>`;
+                });
+                html += `</div></div>`;
+                document.getElementById("preview-body").innerHTML = html;
+            }
+
+            function exportPDF() {
+                if (!S.generatedExam) {
+                    showToast("⚠️ กรุณาสร้างข้อสอบก่อน", "error");
+                    return;
+                }
+                const content = document.getElementById("exam-content");
+                if (!content) return;
+                const title = S.generatedExam.title || "ข้อสอบ";
+                const pw = window.open("", "_blank");
+                pw.document.write(`<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  @page { margin: 20mm; size: A4; }
+  * { box-sizing: border-box; }
+  body { font-family: 'TH Sarabun New', 'Sarabun', Arial, sans-serif; font-size: 16px; margin: 0; color: #1a1a1a; line-height: 1.6; }
+  .exam-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 14px; }
+  .exam-title { font-size: 20px; font-weight: bold; }
+  .exam-subtitle, .exam-meta { text-align: center; font-size: 14px; margin: 4px 0; }
+  .exam-meta { display: flex; justify-content: space-between; margin-top: 10px; }
+  .exam-section-title { background: #f0f0f0; padding: 5px 10px; font-weight: bold; border-left: 4px solid #8a6c4a; margin: 16px 0 10px; font-size: 14px; }
+  .exam-question { margin-bottom: 16px; page-break-inside: avoid; }
+  .q-text { margin-bottom: 6px; }
+  .q-number { font-weight: bold; }
+  .q-choices { list-style: none; margin-left: 20px; padding: 0; }
+  .q-choices li { padding: 2px 0; }
+  .q-blank { border-bottom: 1px solid #aaa; display: inline-block; width: 160px; margin-left: 8px; }
+  .q-longspace { border: 1px solid #ccc; border-radius: 4px; min-height: 130px; margin-top: 8px; }
+  .answer-section { margin-top: 32px; border-top: 2px dashed #aaa; padding-top: 20px; page-break-before: always; }
+  .answer-section-title { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 16px; }
+  .answer-item { display: flex; gap: 10px; margin-bottom: 8px; font-size: 14px; }
+  .answer-num { font-weight: bold; min-width: 24px; }
+  img { max-width: 100%; }
+  @media print { body { margin: 0; } }
+</style>
+</head><body>
+${content.innerHTML}
+<script>
+  window.onload = function() { window.print(); };
+<\/script>
+</body></html>`);
+                pw.document.close();
+            }
+
+            // ═══════════════ ADD DATA ═══════════════
+            function onAddTypeChange() {
+                const t = document.getElementById("add-type").value;
+                document.getElementById("mc-choices").style.display =
+                    t === "mc" ? "block" : "none";
+                document.getElementById("text-ans-area").style.display =
+                    t !== "mc" ? "block" : "none";
+            }
+
+            async function addQuestion() {
+                const q = {
+                    subject: document.getElementById("add-subject").value,
+                    topic: document.getElementById("add-topic").value,
+                    type: document.getElementById("add-type").value,
+                    question: document.getElementById("add-question").value,
+                    question_img: S.questionImgData || "",
+                    difficulty: document.getElementById("add-diff").value,
+                    points: document.getElementById("add-pts").value,
+                    answer_img_url:
+                        S.answerImgData ||
+                        document.getElementById("ans-img").value,
+                };
+                if (q.type === "mc") {
+                    q.choice_a = document.getElementById("ch-a").value;
+                    q.choice_b = document.getElementById("ch-b").value;
+                    q.choice_c = document.getElementById("ch-c").value;
+                    q.choice_d = document.getElementById("ch-d").value;
+                    q.answer = document.getElementById("mc-ans").value;
+                } else {
+                    q.answer = document.getElementById("text-ans").value;
+                }
+                if (!q.subject || !q.question || !q.answer) {
+                    showToast("⚠️ กรุณากรอกวิชา โจทย์ และเฉลย", "error");
+                    return;
+                }
+                q.created_by = S.user?.username || "";
+                S.questions.push(q);
+                persistQuestions();
+                updateStats();
+                updateSubjectSelects();
+                // Clear form
+                document.getElementById("add-topic").value = "";
+                document.getElementById("add-question").value = "";
+                document.getElementById("ch-a").value = "";
+                document.getElementById("ch-b").value = "";
+                document.getElementById("ch-c").value = "";
+                document.getElementById("ch-d").value = "";
+                document.getElementById("text-ans").value = "";
+                document.getElementById("ans-img").value = "";
+                document.getElementById("add-pts").value = "1";
+                S.answerImgData = null;
+                S.questionImgData = null;
+                const preview = document.getElementById("ans-img-preview");
+                if (preview) preview.style.display = "none";
+                const fileInput = document.getElementById("ans-img-file");
+                if (fileInput) fileInput.value = "";
+                clearQuestionImg();
+                showToast("✅ เพิ่มโจทย์สำเร็จ", "success");
+            }
+
+            function handleAnswerImg(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    S.answerImgData = e.target.result;
+                    document.getElementById("ans-img").value =
+                        "(ภาพจากเครื่อง)";
+                    const preview = document.getElementById("ans-img-preview");
+                    const thumb = document.getElementById("ans-img-thumb");
+                    thumb.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function handleQuestionImg(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    S.questionImgData = e.target.result;
+                    document.getElementById("q-img-name").textContent =
+                        file.name;
+                    document.getElementById("q-img-thumb").src =
+                        e.target.result;
+                    document.getElementById("q-img-preview").style.display =
+                        "block";
+                    document.getElementById("q-img-clear").style.display =
+                        "inline-flex";
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function clearQuestionImg() {
+                S.questionImgData = null;
+                document.getElementById("q-img-name").textContent = "";
+                document.getElementById("q-img-preview").style.display = "none";
+                document.getElementById("q-img-clear").style.display = "none";
+                const fi = document.getElementById("q-img-file");
+                if (fi) fi.value = "";
+            }
+
+            function handleCSVUpload(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const lines = e.target.result
+                        .split("\n")
+                        .filter((l) => l.trim());
+                    if (lines.length < 2) {
+                        showToast("⚠️ ไฟล์ CSV ว่างเปล่า", "error");
+                        return;
+                    }
+                    const headers = lines[0].split(",").map((h) => h.trim());
+                    let added = 0;
+                    for (let i = 1; i < lines.length; i++) {
+                        const cols = lines[i].split(",");
+                        const obj = {};
+                        headers.forEach(
+                            (h, idx) => (obj[h] = (cols[idx] || "").trim()),
+                        );
+                        if (obj.question && obj.subject && obj.answer) {
+                            S.questions.push(obj);
+                            added++;
+                        }
+                    }
+                    persistQuestions();
+                    updateStats();
+                    updateSubjectSelects();
+                    showToast(`✅ นำเข้า ${added} โจทย์สำเร็จ`, "success");
+                    input.value = "";
+                };
+                reader.readAsText(file, "UTF-8");
+            }
+
+            function addSubject() {
+                const v = document.getElementById("new-subject").value.trim();
+                if (!v) return;
+                if (!S.subjects.includes(v)) {
+                    S.subjects.push(v);
+                    persistSubjects();
+                    updateSubjectSelects();
+                    showToast(`✅ เพิ่มวิชา "${v}"`, "success");
+                } else {
+                    showToast(`⚠️ วิชา "${v}" มีอยู่แล้ว`, "error");
+                }
+                document.getElementById("new-subject").value = "";
+            }
+
+            function downloadTemplate() {
+                const csv =
+                    "subject,topic,type,question,choice_a,choice_b,choice_c,choice_d,answer,answer_img_url,difficulty,points\nคณิตศาสตร์,สมการ,mc,2+2=?,ก.3,ข.4,ค.5,ง.6,ข,,easy,1\n";
+                const a = document.createElement("a");
+                a.href =
+                    "data:text/csv;charset=utf-8,\ufeff" +
+                    encodeURIComponent(csv);
+                a.download = "examforge_template.csv";
+                a.click();
+            }
+
+            // ═══════════════ HISTORY ═══════════════
+            // ═══════════════ USERS ═══════════════
+            function persistUsers() {
+                localStorage.setItem("ef_users", JSON.stringify(S.users));
+            }
+
+            function renderUsers() {
+                const tbody = document.getElementById("user-tbody");
+                if (!tbody) return;
+                tbody.innerHTML = S.users
+                    .map(
+                        (u, i) => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="user-avatar avatar-${u.role}" style="width:30px;height:30px;font-size:.75rem">${u.displayName.charAt(0)}</div>
+          <div>
+            <div style="font-weight:600;font-size:.84rem">${u.displayName}</div>
+            <div style="font-family:var(--mono);font-size:.68rem;color:var(--text3)">@${u.username}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge badge-${u.role}">${u.role === "admin" ? "Admin" : "Teacher"}</span></td>
+      <td><span class="badge ${u.status === "active" ? "badge-active" : "badge-inactive"}">${u.status === "active" ? "ใช้งาน" : "ระงับ"}</span></td>
+      <td style="font-family:var(--mono);font-size:.7rem;color:var(--text3)">${u.lastLogin || "—"}</td>
+      <td>
+        <div class="user-actions">
+          <button class="btn btn-secondary" style="font-size:.65rem;padding:4px 8px" onclick="openEditUser(${i})">✏ แก้ไข</button>
+          <button class="btn ${u.status === "active" ? "btn-danger" : "btn-success"}" style="font-size:.65rem;padding:4px 8px"
+            onclick="toggleUserStatus(${i})">${u.status === "active" ? "⏸ ระงับ" : "▶ เปิดใช้"}</button>
+          ${u.username !== "admin" ? `<button class="btn btn-danger" style="font-size:.65rem;padding:4px 8px" onclick="deleteUser(${i})">🗑</button>` : ""}
+        </div>
+      </td>
+    </tr>`,
+                    )
+                    .join("");
+            }
+
+            async function addUser() {
+                const uname = document.getElementById("new-uname").value.trim();
+                const dname = document.getElementById("new-dname").value.trim();
+                const pass = document.getElementById("new-pass").value;
+                const role = document.getElementById("new-role").value;
+                if (!uname || !dname || !pass) {
+                    showToast("⚠️ กรอกข้อมูลให้ครบ", "error");
+                    return;
+                }
+                if (pass.length < 6) {
+                    showToast("⚠️ รหัสผ่านอย่างน้อย 6 ตัว", "error");
+                    return;
+                }
+                if (S.users.find((u) => u.username === uname)) {
+                    showToast("⚠️ ชื่อผู้ใช้นี้มีอยู่แล้ว", "error");
+                    return;
+                }
+                const newUser = {
+                    username: uname,
+                    password: pass,
+                    displayName: dname,
+                    role,
+                    status: "active",
+                    lastLogin: "",
+                };
+                S.users.push(newUser);
+                persistUsers();
+                renderUsers();
+                if (S.scriptUrl) {
+                    try {
+                        await fetch(S.scriptUrl, {
+                            method: "POST",
+                            body: JSON.stringify({
+                                action: "addUser",
+                                ...newUser,
+                            }),
+                        });
+                    } catch {}
+                }
+                document.getElementById("new-uname").value = "";
+                document.getElementById("new-dname").value = "";
+                document.getElementById("new-pass").value = "";
+                showToast(`✅ เพิ่มผู้ใช้ "${dname}" สำเร็จ`, "success");
+            }
+
+            function openEditUser(i) {
+                const u = S.users[i];
+                document.getElementById("edit-uname-orig").value = u.username;
+                document.getElementById("edit-dname").value = u.displayName;
+                document.getElementById("edit-role").value = u.role;
+                document.getElementById("edit-pass").value = "";
+                document
+                    .getElementById("modal-edit-user")
+                    .classList.add("open");
+            }
+
+            function saveEditUser() {
+                const orig = document.getElementById("edit-uname-orig").value;
+                const idx = S.users.findIndex((u) => u.username === orig);
+                if (idx < 0) return;
+                S.users[idx].displayName =
+                    document.getElementById("edit-dname").value;
+                S.users[idx].role = document.getElementById("edit-role").value;
+                const np = document.getElementById("edit-pass").value;
+                if (np) S.users[idx].password = np;
+                persistUsers();
+                renderUsers();
+                closeModal("modal-edit-user");
+                showToast("✅ บันทึกการแก้ไขสำเร็จ", "success");
+            }
+
+            async function toggleUserStatus(i) {
+                if (S.users[i].username === "admin") {
+                    showToast("⚠️ ไม่สามารถระงับ Admin หลักได้", "error");
+                    return;
+                }
+                S.users[i].status =
+                    S.users[i].status === "active" ? "inactive" : "active";
+                persistUsers();
+                renderUsers();
+                if (S.scriptUrl) {
+                    try {
+                        await fetch(S.scriptUrl, {
+                            method: "POST",
+                            body: JSON.stringify({
+                                action: "toggleUser",
+                                username: S.users[i].username,
+                                status: S.users[i].status,
+                            }),
+                        });
+                    } catch {}
+                }
+                showToast("✅ อัปเดตสถานะสำเร็จ", "success");
+            }
+
+            function deleteUser(i) {
+                if (S.users[i].username === "admin") {
+                    showToast("⚠️ ไม่สามารถลบ Admin หลักได้", "error");
+                    return;
+                }
+                if (!confirm(`ยืนยันลบผู้ใช้ "${S.users[i].displayName}"?`))
+                    return;
+                S.users.splice(i, 1);
+                persistUsers();
+                renderUsers();
+                showToast("✅ ลบผู้ใช้สำเร็จ", "success");
+            }
+
+            async function syncUsersSheet() {
+                if (!S.scriptUrl) {
+                    showToast("⚠️ ตั้งค่า Script URL ก่อน", "error");
+                    return;
+                }
+                showToast("🔄 กำลังซิงค์...");
+                try {
+                    const res = await fetch(S.scriptUrl + "?action=getUsers");
+                    const data = await res.json();
+                    if (Array.isArray(data))
+                        showToast(
+                            `✅ ซิงค์ ${data.length} ผู้ใช้สำเร็จ`,
+                            "success",
+                        );
+                } catch {
+                    showToast("⚠️ ซิงค์ไม่สำเร็จ", "error");
+                }
+            }
+
+            // ═══════════════ CONFIG ═══════════════
+            function saveSheetConfig() {
+                S.scriptUrl = document.getElementById("cfg-script-url").value;
+                localStorage.setItem("ef_script", S.scriptUrl);
+                showToast("✅ บันทึกการตั้งค่า", "success");
+            }
+            function savePDFConfig() {
+                showToast("✅ บันทึก PDF Config", "success");
+            }
+            function toggleGuide() {
+                const g = document.getElementById("gas-guide");
+                g.style.display = g.style.display === "none" ? "block" : "none";
+            }
+            async function testConn() {
+                const url = document.getElementById("cfg-script-url").value;
+                if (!url) {
+                    showToast("⚠️ ใส่ URL ก่อน", "error");
+                    return;
+                }
+                showToast("🔄 กำลังทดสอบ...");
+                try {
+                    const res = await fetch(url + "?action=getQuestions");
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        showToast(
+                            `✅ เชื่อมต่อสำเร็จ โหลด ${data.length} ข้อ`,
+                            "success",
+                        );
+                    }
+                } catch {
+                    showToast("⚠️ เชื่อมต่อไม่ได้ ตรวจสอบ URL", "error");
+                }
+            }
+
+            // ═══════════════ MODAL ═══════════════
+            function closeModal(id) {
+                document.getElementById(id).classList.remove("open");
+            }
+            document.querySelectorAll(".modal-overlay").forEach((el) => {
+                el.addEventListener("click", (e) => {
+                    if (e.target === el) el.classList.remove("open");
+                });
+            });
+
+            // ═══════════════ TOAST ═══════════════
+            function showToast(msg, type = "") {
+                const t = document.getElementById("toast");
+                t.textContent = msg;
+                t.className = `toast ${type}`;
+                t.classList.add("show");
+                clearTimeout(window._tt);
+                window._tt = setTimeout(() => t.classList.remove("show"), 3500);
+            }
+
+            // ═══════════════ INIT ═══════════════
+            document.getElementById("exam-date").value = new Date()
+                .toISOString()
+                .split("T")[0];
+            if (document.getElementById("cfg-script-url"))
+                document.getElementById("cfg-script-url").value = S.scriptUrl;
+        </script>
+    </body>
+</html>
