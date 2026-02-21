@@ -2516,7 +2516,6 @@ function jsonResponse(data) {
             window.addEventListener("DOMContentLoaded", () => {
                 const input = document.getElementById("cfg-script-url");
                 const saved = localStorage.getItem("script_url");
-                saveSheetConfig();
                 if (saved) {
                     input.value = saved;
                 } else {
@@ -2605,6 +2604,7 @@ function jsonResponse(data) {
                         "ef_script",
                         "https://script.google.com/macros/s/AKfycbwvwWwe3YUb0Ox2aFuTEXHPvJY_0lPya3IXlcatFVvFWH44NW7jJ33Ptq2H-jLHqgO5bA/exec"
                     );
+                    saveSheetConfig();
                     launchApp();
                 }, 700);
             }
